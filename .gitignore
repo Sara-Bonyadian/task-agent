@@ -1,3 +1,9 @@
+# Ignore Python venv
 venv/
-_pycache_/
+
+# Ignore Node modules
+node_modules/
+
+# Ignore cache files
+__pycache__/
 *.pyc
