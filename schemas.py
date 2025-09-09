@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 # What fields a client must/can send to create/update a task
 class TaskBase(BaseModel):
@@ -11,3 +12,7 @@ class TaskRead(TaskBase):
 
     # Pydantic v2: read data from ORM objects (SQLAlchemy) via attributes
     model_config={"from_attributes": True}
+
+class TaskUpdate(BaseModel):
+    title:Optional[str]=None
+    done:Optional[bool]=None
