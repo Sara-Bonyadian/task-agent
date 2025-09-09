@@ -3,22 +3,7 @@ from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
-
-# ======================================================
-# Database setup
-# ======================================================
-# Database URL: tells SQLAlchemy how to connect
-DATABASE_URL = "postgresql+psycopg2://sarabonyadian@localhost:5432/taskdb"
-
-# Create the engine (like a cable connecting Python ↔ Postgres)
-engine = create_engine(DATABASE_URL)
-
-# Session: the "conversation" we use for each request
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base: parent class for all tables
-Base = declarative_base()
-
+s
 class TaskDB(Base):
     __tablename__ = "tasks"   # matches the table we created in Postgres
 
