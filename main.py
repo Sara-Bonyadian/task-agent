@@ -1,11 +1,14 @@
 from fastapi import FastAPI, Depends
 from fastapi import HTTPException, status, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from contextlib import asynccontextmanager
 from database import get_db,init_db
 from models import TaskDB
 from schemas import TaskBase,TaskRead, TaskUpdate
+from typing import Optional
 
 
 
@@ -38,8 +41,42 @@ def read_root():
 
 
 @app.get("/tasks",response_model=list[TaskRead])
-def get_tasks(db:Session=Depends(get_db)):
-    return db.query(TaskDB).all()
+def get_tasks(
+    db:Session=Depends(get_db),
+    done: Optional[bool]=Query(None,description="Filter by done status"),
+    search: Optional[str]=Query(None, description="Case-insensitive search in title"),
+    sort: str=Query("id", description="Sort by one of: id, title,done"),
+    order:str=Query("asc", description="asc or desc"),
+    limit: Optional[int]=Query(None,ge=1,le=100,description="Max rows"),
+    offset:int=Query(0,ge=0,description="Skip first N rows")
+):
+    q=db.query(TaskDB)
+
+    #filters
+    if done is not None:
+        q=q.filter(TaskDB.done==done)
+
+    if search is not None:
+        term = search.strip().lower()
+        if term:
+            # case-insensitive match: lower(title) LIKE lower(term)
+            q = q.filter(func.lower(TaskDB.title).like(f"%{term.lower()}%"))
+
+    sort_map={
+        "id":TaskDB.id,
+        "title":TaskDB.title,
+        "done":TaskDB.done
+    }
+    col=sort_map.get(sort,TaskDB.id)
+
+    q=q.order_by(col.asc() if order.lower()=="asc" else col.desc())
+    # pagination
+    if offset:
+        q = q.offset(offset)
+    if limit is not None:
+        q = q.limit(limit)
+
+    return q.all()
 
 @app.post("/tasks", response_model=TaskRead)
 def create_task(task: TaskBase, db: Session = Depends(get_db)):
