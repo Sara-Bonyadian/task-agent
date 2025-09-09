@@ -4,16 +4,6 @@ from database import engine, SessionLocal
 from models import TaskDB
 from schemas import TaskBase,TaskRead
 
-
-#Base.metadata.create_all(bind=engine)
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
 app = FastAPI()
 #@app.get("/")
 #def read_root():
