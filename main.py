@@ -1,24 +1,11 @@
 from fastapi import FastAPI, Depends
-from pydantic import BaseModel
-from sqlalchemy import create_engine, Column, Integer, String, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, Session
-s
-class TaskDB(Base):
-    __tablename__ = "tasks"   # matches the table we created in Postgres
+from sqlalchemy.orm import Session
+from database import engine, SessionLocal 
+from models import TaskDB
+from schemas import TaskBase,TaskRead
 
-    id = Column(Integer, primary_key=True, index=True)
-    title = Column(String, nullable=False)
-    done = Column(Boolean, default=False)
 
-Base.metadata.create_all(bind=engine)
-
-class Task(BaseModel):
-    title: str
-    done: bool = False
-
-    class Config:
-        orm_mode = True
+#Base.metadata.create_all(bind=engine)
 
 def get_db():
     db = SessionLocal()
@@ -46,12 +33,13 @@ app = FastAPI()
 def read_root():
     return {"message": "FastAPI with PostgreSQL is running"}
 
-@app.get("/tasks")
-def get_tasks(db: Session = Depends(get_db)):
+
+@app.get("/tasks",response_model=list[TaskRead])
+def get_tasks(db:Session=Depends(get_db)):
     return db.query(TaskDB).all()
 
-@app.post("/tasks")
-def create_task(task: Task, db: Session = Depends(get_db)):
+@app.post("/tasks", response_model=list[TaskRead])
+def create_task(task: TaskBase, db: Session = Depends(get_db)):
     new_task = TaskDB(title=task.title, done=task.done)
     db.add(new_task)
     db.commit()
