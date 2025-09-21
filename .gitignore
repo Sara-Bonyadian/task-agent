@@ -1,9 +1,14 @@
-# Ignore Python venv
-venv/
+# Python venv
+backend/venv/
+backend/.venv/
 
-# Ignore Node modules
-node_modules/
+# Node modules
+frontend/node_modules/
 
-# Ignore cache files
+# Python cache
 __pycache__/
 *.pyc
+
+# OS/editor
+.DS_Store
+.vscode/
