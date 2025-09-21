@@ -4,7 +4,7 @@ import {TaskService} from "@/lib/api"
 
 const tasks=ref([]);
 const loading=ref(true);
-const error =ref(");
+const error =ref("");
 onMounted(async () => {
   try {
     tasks.value = await TaskService.list(); // GET /tasks
